@@ -1,0 +1,77 @@
+#include <iostream>
+#include <thread>
+#include <mutex>
+
+using namespace std;
+
+template<typename T>
+struct Node {
+    T value;
+    Node *next;
+    Node(const T &value) : value(value), next(nullptr) { }
+};
+
+template<typename T>
+class LinkedList{
+public:
+    LinkedList(){
+        head= nullptr;
+        tail= nullptr;
+    }
+    ~LinkedList(){
+        if (head == nullptr) return;
+        Node<T>* temp = head;
+        Node<T>* temp2 = nullptr;
+        while (temp != nullptr) {
+            temp2 = temp;
+            temp = temp->next;
+            delete temp2;
+        }
+        head=nullptr;
+    }
+
+
+    void insert(T value){
+	std::lock_guard<std::mutex> myLockGuard(myMutex);
+        Node<T>* temp = new Node<T>(value);
+            if (head!=nullptr) {
+                tail->next=temp;
+                tail=temp;
+            }
+            else{
+                tail=temp;
+                head=temp;
+            }
+    };
+	
+	template<typename X>
+    friend ostream& operator<< (ostream& out,  const LinkedList<X>& ll);
+    
+    mutex myMutex;
+    Node<T>* head;
+    Node<T>* tail;
+};
+
+
+template<typename X>
+ostream& operator<< (ostream& out, const LinkedList<X>& ll){
+    Node<X>* temp= ll.head;
+    while(temp!= nullptr) {
+        out <<temp->value ;
+        out<< " ";
+        temp=temp->next;
+    }
+    return out;
+};
+
+
+int main(){
+	LinkedList<int>temp;
+	thread t1(&LinkedList<int>::insert, ref(temp),19);
+	thread t2(&LinkedList<int>::insert, ref(temp),13);
+	t1.join();		
+	t2.join();		
+	cout<<temp;
+	
+}
+

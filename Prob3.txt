@@ -1,0 +1,48 @@
+#include <thread>
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <iterator>
+#include <mutex>
+
+std::mutex myMutex;
+void primes( std::vector<int> &r, const int& begin, const int &end){
+	std::lock_guard<std::mutex> myLockGuard(myMutex);
+	for (int i=begin; i<end;i++)
+    {
+        bool isPrime = true;
+        for (int j = 2; j < i; j++)
+        {
+            if (i%j == 0)
+                isPrime = false;
+        }
+        if (isPrime)
+        {
+            r.emplace_back(i);
+        }
+}
+}
+ 
+
+int main()
+{ 
+	int range;
+	std::cin>>range;
+    std::vector<int> randValues;
+    std::vector<std::thread> t;
+    int n=range/10;
+    int begin=0;
+    int end=10;
+	for (int i = 0;i <= n;i++){
+		t.emplace_back(std::thread(primes, std::ref(randValues), std::ref(begin),std::ref(end)));
+		begin+=10;
+		end+=10;
+	}
+	
+	for (auto& thread :t)
+    {
+        thread.join();
+    }
+ 
+   return 0;
+}
