@@ -4,33 +4,34 @@
 #include <numeric>
 #include <random>
 #include <vector>
- 
-constexpr int size= 100;
-std::mutex myMutex;
-float add;
-void sum(const int &i){
-	std::lock_guard<std::mutex> myLockGuard(myMutex);
-	add+= i;
+#include <future>
+
+using namespace std;
+constexpr int sizo= 100;
+int sum(const vector<int> &v, int begin, int last){
+    int result=0;
+    for(int i=begin;i<last;i++)
+        result+=v[i];
+    return result;
 }
- 
+
 int main(){
- 
-  std::cout << std::endl;
- 
-  std::vector<int> randValues;
-  randValues.reserve(size);
- 
-  std::random_device seed;
-  std::mt19937 engine(seed());
-  std::uniform_int_distribution<> uniformDist(1,10);
-  for ( long long i=0 ; i< size ; ++i) randValues.emplace_back(uniformDist(engine));
- 
-  for (auto i: randValues){
-      sum(i);
-  }
- 
-  std::cout << "Result: " << add << std::endl;
- 
-  std::cout << std::endl;
- 
+
+    std::cout << std::endl;
+
+    vector<int> randValues;
+    randValues.reserve(sizo);
+
+    std::random_device seed;
+    std::mt19937 engine(seed());
+    std::uniform_int_distribution<> uniformDist(1,10);
+    for ( long long i=0 ; i< sizo ; ++i) randValues.emplace_back(uniformDist(engine));
+     int middle=49,begin=0,end=99;
+     auto  sum1 = async(sum,randValues,begin,middle);
+     auto sum2 = async(sum,randValues,middle,end);
+    int add1=sum1.get();
+    int add2=sum2.get();
+    cout << "Result: " << add1 + add2 << std::endl;
+    cout << std::endl;
+
 }

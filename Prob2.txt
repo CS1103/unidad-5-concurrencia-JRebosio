@@ -4,44 +4,47 @@
 #include <numeric>
 #include <random>
 #include <vector>
- 
-constexpr int size= 6;
-std::mutex myMutex;
-//float add;
- 
- 
-void sum_a_num(int &i){
-	std::lock_guard<std::mutex> myLockGuard(myMutex);
-	i+= 6;
+#include <chrono>
+#include <iostream>
+#include <mutex>
+#include <numeric>
+#include <random>
+#include <vector>
+#include <future>
+
+using namespace std;
+constexpr int sizo= 16;
+void sum_a_num(vector<int> &v, int begin, int last){
+    int num_sum=7;
+    for(int i=begin;i<last;i++)
+        v[i]+=num_sum;
 }
- 
- 
+
 int main(){
- 
-  std::cout << std::endl;
- 
-  std::vector<int> randValues;
-  randValues.reserve(size);
- 
-  std::random_device seed;
-  std::mt19937 engine(seed());
-  std::uniform_int_distribution<> uniformDist(1,10);
-  for ( long long i=0 ; i< size ; ++i) randValues.emplace_back(uniformDist(engine));
- 
-  for (const auto& i: randValues){
-      std::cout<<i<<" ";
-  }
-	std::cout<<std::endl;
- 
- for (auto &i: randValues){
-      sum_a_num(i);
-  }
- 
-  for (const auto& i: randValues){
-      std::cout<<i<<" ";
-  }
- 
-	std::cout<<std::endl;
- 
- 
+
+    std::cout << std::endl;
+
+    vector<int> randValues;
+    randValues.reserve(sizo);
+
+    std::random_device seed;
+    std::mt19937 engine(seed());
+    std::uniform_int_distribution<> uniformDist(1,10);
+    for ( long long i=0 ; i< sizo ; ++i) randValues.emplace_back(uniformDist(engine));
+     int middle=7,begin=0,end=15;
+     ;
+    for (const auto& i: randValues){
+        cout<<i<<" ";
+    }
+    cout<<std::endl;
+
+    thread t1(sum_a_num,randValues,begin,middle);
+    thread t2(sum_a_num,randValues,middle,end);
+    t1.join();
+    t2.join();
+
+    for (const auto& i: randValues){
+        cout<<i<<" ";
+    }
+
 }
